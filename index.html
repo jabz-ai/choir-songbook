@@ -346,7 +346,6 @@ body{font-family:var(--body);background:var(--bg);color:var(--cream);min-height:
 
   <div class="nav-pill" id="mainTabs">
     <button class="nav-item on" id="viewerTab" onclick="switchTab('viewer')">Song Library</button>
-    <button class="nav-item" id="aiToolsTab" onclick="switchTab('aiTools')">Setlist Builder</button>
     <button class="nav-item" id="adminTab" onclick="switchTab('admin')">Admin Panel</button>
   </div>
 
@@ -370,12 +369,7 @@ body{font-family:var(--body);background:var(--bg);color:var(--cream);min-height:
           <span class="search-icon">🔍</span>
           <input type="text" class="search-input" id="searchInput"
                  placeholder="Search by title, artist, lyrics, language, or serial #…"
-                 oninput="onSearchInput()" onkeydown="onSearchKey(event)">
-        </div>
-        <div class="ai-toggle" id="aiToggle" onclick="toggleAISearch()" title="Toggle AI semantic search">
-          <span>✨ AI Search</span>
-          <span class="ai-toggle-knob"></span>
-        </div>
+                 oninput="onSearchInput()">
       </div>
     </div>
 
@@ -387,66 +381,6 @@ body{font-family:var(--body);background:var(--bg);color:var(--cream);min-height:
     <div id="songsContainer">
       <div class="loading-state"><div class="spinner"></div><p style="color:var(--muted);font-size:13px">Loading songs…</p></div>
     </div>
-  </div>
-
-  <!-- ══════════ SETLIST BUILDER ══════════ -->
-  <div id="aiTools" class="view-section">
-
-    <div class="setlist-intro">
-      <div class="setlist-intro-icon">✨</div>
-      <div>
-        <div class="page-tag">Intelligent Worship</div>
-        <h1 class="page-h1" style="font-size:36px;margin-bottom:0">Setlist Builder</h1>
-        <p class="setlist-intro-desc">Harness AI to craft a cohesive flow of worship songs from your library — tailored to occasion, language mix, and the choir's strengths.</p>
-      </div>
-    </div>
-
-    <div class="setlist-grid">
-
-      <div class="setlist-form-card">
-        <div class="setlist-form-h">Define Your Service</div>
-        <div class="admin-form">
-          <div class="form-group">
-            <label>Occasion or Theme <span class="req">*</span></label>
-            <input type="text" id="setlistTheme" placeholder="e.g. Sunday morning · gratitude">
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label>Song Count</label>
-              <select id="setlistCount">
-                <option value="3">3 Songs</option>
-                <option value="5" selected>5 Songs</option>
-                <option value="7">7 Songs</option>
-                <option value="10">10 Songs</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label>Language Mix</label>
-              <select id="setlistLang">
-                <option value="any">Any</option>
-                <option value="english">Mostly English</option>
-                <option value="non-english">Mostly Non-English</option>
-                <option value="mixed">Balanced Mix</option>
-              </select>
-            </div>
-          </div>
-          <div class="form-group">
-            <label>Notes</label>
-            <textarea id="setlistNotes" placeholder="Start slow, build energy. Include at least one Tamil song." style="min-height:80px"></textarea>
-          </div>
-          <button class="btn btn-primary" onclick="buildSetlist()" id="buildSetlistBtn" style="width:100%">⊙ Generate Setlist</button>
-        </div>
-      </div>
-
-      <div class="setlist-timeline" id="setlistTimeline">
-        <div class="timeline-empty">
-          <div class="timeline-empty-icon">🎼</div>
-          <p>Your generated setlist will appear here.</p>
-          <p style="margin-top:6px;font-size:11px">Describe a service occasion and click <em>Generate Setlist</em>.</p>
-        </div>
-      </div>
-    </div>
-
   </div>
 
   <!-- ══════════ ADMIN PANEL ══════════ -->
@@ -486,11 +420,6 @@ body{font-family:var(--body);background:var(--bg);color:var(--cream);min-height:
             <button type="button" class="btn btn-danger btn-sm" id="cancelEditBtn" style="display:none" onclick="clearForm()">Cancel Edit</button>
           </div>
           <div class="panel-card-body">
-
-            <div class="ai-autofill-row">
-              <p>✨ <strong>AI Auto-fill</strong> — paste a song title or YouTube URL and let AI fill the form</p>
-              <button type="button" class="btn-sparkle" onclick="showAutofillModal()">✨ Auto-fill</button>
-            </div>
 
             <form class="admin-form" onsubmit="saveSong(event)">
               <div class="form-row">
@@ -544,7 +473,6 @@ body{font-family:var(--body);background:var(--bg);color:var(--cream);min-height:
                 <div class="form-group">
                   <label>
                     <span>English Transliteration <span class="req">*</span></span>
-                    <button type="button" class="btn-sparkle" onclick="generateTransliteration()" id="genTranslitBtn">✨ Generate from original</button>
                   </label>
                   <textarea id="songLyricsTransliteration" placeholder="Paste phonetic English spelling…"></textarea>
                   <span class="help-text">Match lines exactly to the original for side-by-side display</span>
@@ -634,55 +562,6 @@ body{font-family:var(--body);background:var(--bg);color:var(--cream);min-height:
   </div>
 </div>
 
-<!-- ── AUTOFILL MODAL ── -->
-<div class="modal" id="autofillModal" onclick="if(event.target===this)closeAutofillModal()">
-  <div class="modal-content" style="max-width:560px">
-    <button class="close-btn" onclick="closeAutofillModal()">✕</button>
-    <h2 style="font-family:var(--serif);color:var(--cream);font-size:24px;margin-bottom:8px">✨ Auto-fill with AI</h2>
-    <p style="color:var(--muted);font-size:13px;margin-bottom:22px;line-height:1.65">
-      Paste a YouTube link or type a song title — AI will look up the details and lyrics, then fill the form.
-    </p>
-    <div class="admin-form">
-      <div class="form-group">
-        <label>Song title or YouTube URL <span class="req">*</span></label>
-        <input type="text" id="afQuery" placeholder="e.g. Amazing Grace OR https://youtu.be/…">
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label>Artist hint</label>
-          <input type="text" id="afArtist" placeholder="Optional, improves accuracy">
-        </div>
-        <div class="form-group">
-          <label>Language</label>
-          <select id="afLang">
-            <option value="">Auto-detect</option>
-            <option value="English">English</option>
-            <option value="Hindi">Hindi</option>
-            <option value="Tamil">Tamil</option>
-            <option value="Telugu">Telugu</option>
-            <option value="Malayalam">Malayalam</option>
-            <option value="Kannada">Kannada</option>
-            <option value="Bengali">Bengali</option>
-            <option value="Marathi">Marathi</option>
-            <option value="Gujarati">Gujarati</option>
-            <option value="Punjabi">Punjabi</option>
-            <option value="Urdu">Urdu</option>
-            <option value="Spanish">Spanish</option>
-            <option value="French">French</option>
-          </select>
-        </div>
-      </div>
-    </div>
-    <div style="margin-top:18px;padding:12px 14px;background:rgba(192,64,74,0.08);border:1px solid rgba(192,64,74,0.2);border-radius:var(--r-sm);font-size:12px;color:#f9a4ab;line-height:1.6">
-      ⚠ AI may make errors or hallucinate lyrics. <strong>Always verify before saving</strong>.
-    </div>
-    <div class="form-actions" style="padding-top:16px">
-      <button class="btn btn-secondary" onclick="closeAutofillModal()">Cancel</button>
-      <button class="btn btn-primary" onclick="runAutofill()" id="autofillBtn">✨ Generate</button>
-    </div>
-  </div>
-</div>
-
 <div class="toast" id="toast"></div>
 
 <script>
@@ -746,7 +625,6 @@ var currentLanguage = 'all';
 var editingId = null;
 var currentUser = null;
 var unsubscribeListener = null;
-var aiSearchOn = false;
 
 // ════════════════════════════════════════════════
 //  AI PROXY CLIENT
@@ -773,197 +651,10 @@ function parseAIJson(text) {
 }
 
 // ════════════════════════════════════════════════
-//  TRANSLITERATION
+//  SEARCH
 // ════════════════════════════════════════════════
-async function generateTransliteration() {
-  var orig = document.getElementById('songLyricsOriginal').value.trim();
-  var lang = document.getElementById('songLanguage').value || 'the original language';
-  if(!orig) { showToast('Please enter original lyrics first', 'error'); return; }
-
-  var btn = document.getElementById('genTranslitBtn');
-  btn.disabled = true; btn.innerHTML = '⏳ Generating…';
-
-  try {
-    var system = 'Transliterate ' + lang + ' lyrics into phonetic English (Roman script). Rules: (1) Preserve line breaks EXACTLY — each input line maps to exactly one output line. (2) Preserve section headers like [Verse 1], [Chorus], [Bridge] unchanged. (3) Use natural phonetic spelling that singers can read. Output ONLY the transliteration. No preamble, no markdown, no notes.';
-    var result = await callAI(system, orig, 4000);
-    document.getElementById('songLyricsTransliteration').value = result;
-    showToast('Transliteration generated! ✨', 'success');
-  } catch(err) {
-    showToast('Failed: ' + err.message, 'error');
-  }
-  btn.disabled = false; btn.innerHTML = '✨ Generate from original';
-}
-
-// ════════════════════════════════════════════════
-//  SETLIST BUILDER
-// ════════════════════════════════════════════════
-async function buildSetlist() {
-  var theme = document.getElementById('setlistTheme').value.trim();
-  if(!theme) { showToast('Please describe the occasion or theme', 'error'); return; }
-  if(songs.length === 0) { showToast('No songs in library yet', 'error'); return; }
-
-  var count = document.getElementById('setlistCount').value;
-  var langPref = document.getElementById('setlistLang').value;
-  var notes = document.getElementById('setlistNotes').value.trim();
-
-  var btn = document.getElementById('buildSetlistBtn');
-  btn.disabled = true; btn.innerHTML = '⏳ Building setlist…';
-
-  document.getElementById('setlistTimeline').innerHTML = '<div class="loading-state"><div class="spinner"></div><p style="color:var(--gold-lt);font-size:13px">✨ Crafting your setlist…</p></div>';
-
-  try {
-    var summary = songs.map(function(s){
-      return {
-        id: s.id, title: s.title, artist: s.artist || '', language: s.language || 'Unknown', key: s.key || '',
-        preview: (s.lyricsEnglish || s.lyricsTransliteration || s.lyricsOriginal || '').slice(0, 250).replace(/\s+/g, ' ').trim()
-      };
-    });
-    var system = 'You are a worship leader assistant. Build a thoughtful setlist using songs ONLY from the provided library. Consider the occasion, language mix, and flow (e.g. open with familiar, build to climax, close gently). Each item should have a stage label like "Opening", "Worship & Praise", "Reflection", "Communion", "Recessional", "Closing", or similar. Output ONLY valid JSON, no markdown, no preamble. Schema: [{"id":"<song-id>","stage":"<stage-label>","reason":"<one-sentence reasoning>"}]. Order matters. Use only IDs from the list.';
-    var userPrompt = 'Occasion / theme: ' + theme + '\nNumber of songs: ' + count + '\nLanguage preference: ' + langPref + (notes ? '\nNotes: ' + notes : '') + '\n\nAvailable songs (JSON):\n' + JSON.stringify(summary);
-    var result = await callAI(system, userPrompt, 2500);
-    var setlist = parseAIJson(result);
-    renderSetlistResults(setlist, theme);
-    showToast('Setlist ready! 🎼', 'success');
-  } catch(err) {
-    document.getElementById('setlistTimeline').innerHTML = '<div class="timeline-empty"><div class="timeline-empty-icon">⚠</div><p>Setlist build failed: ' + escHtml(err.message) + '</p></div>';
-    showToast('Build failed: ' + err.message, 'error');
-  }
-  btn.disabled = false; btn.innerHTML = '⊙ Generate Setlist';
-}
-
-function renderSetlistResults(setlist, theme) {
-  var container = document.getElementById('setlistTimeline');
-  if(!Array.isArray(setlist) || setlist.length === 0) {
-    container.innerHTML = '<div class="timeline-empty"><p>No setlist generated.</p></div>';
-    return;
-  }
-  var html = '<div class="timeline-head"><div><div class="timeline-h">Proposed Sequence</div><div class="timeline-theme">Theme: ' + escHtml(theme) + '</div></div><button class="btn btn-secondary btn-sm" onclick="copySetlist()">📋 Copy</button></div>';
-  setlist.forEach(function(item, i){
-    var song = songs.find(function(s){ return s.id === item.id; });
-    if(!song) return;
-    var stage = item.stage || 'Song ' + (i+1);
-    html += '<div class="tl-item" onclick="showLyrics(\'' + song.id + '\')">' +
-      '<div class="tl-num">' + (i+1) + '</div>' +
-      '<div class="tl-card">' +
-        '<div class="tl-stage">' + escHtml(stage) + '</div>' +
-        '<div class="tl-row">' +
-          '<div>' +
-            '<div class="tl-title">' + escHtml(song.title) + '</div>' +
-            '<div class="tl-meta">' + escHtml(song.artist) + ' · ' + escHtml(song.language||'') + (song.key ? ' · ' + escHtml(song.key) : '') + '</div>' +
-          '</div>' +
-          '<span class="tl-pill">' + escHtml((song.language||'?').toUpperCase()) + '</span>' +
-        '</div>' +
-        (item.reason ? '<div class="tl-reason">✦ ' + escHtml(item.reason) + '</div>' : '') +
-      '</div>' +
-    '</div>';
-  });
-  container.innerHTML = html;
-  window._currentSetlist = setlist;
-}
-
-function copySetlist() {
-  if(!window._currentSetlist) return;
-  var theme = document.getElementById('setlistTheme').value.trim();
-  var lines = ['🎼 Setlist' + (theme ? ' — ' + theme : ''), ''];
-  window._currentSetlist.forEach(function(item, i){
-    var song = songs.find(function(s){ return s.id === item.id; });
-    if(song) {
-      lines.push((i+1) + '. ' + (item.stage ? '[' + item.stage + '] ' : '') + song.title + ' — ' + song.artist + ' (' + (song.language||'') + ')');
-      if(item.reason) lines.push('   → ' + item.reason);
-    }
-  });
-  navigator.clipboard.writeText(lines.join('\n')).then(function(){ showToast('Setlist copied!', 'success'); });
-}
-
-// ════════════════════════════════════════════════
-//  AUTOFILL
-// ════════════════════════════════════════════════
-function showAutofillModal() {
-  document.getElementById('afQuery').value = '';
-  document.getElementById('afArtist').value = '';
-  document.getElementById('afLang').value = '';
-  document.getElementById('autofillModal').classList.add('active');
-  document.body.style.overflow = 'hidden';
-  setTimeout(function(){ document.getElementById('afQuery').focus(); }, 100);
-}
-function closeAutofillModal() {
-  document.getElementById('autofillModal').classList.remove('active');
-  document.body.style.overflow = '';
-}
-
-async function runAutofill() {
-  var q = document.getElementById('afQuery').value.trim();
-  if(!q) { showToast('Please enter a title or YouTube URL', 'error'); return; }
-
-  var artistHint = document.getElementById('afArtist').value.trim();
-  var langHint = document.getElementById('afLang').value;
-  var btn = document.getElementById('autofillBtn');
-  btn.disabled = true; btn.innerHTML = '⏳ Generating…';
-
-  var queryDescription = q;
-  var youtubeUrl = '';
-  if(/youtu/i.test(q)) {
-    youtubeUrl = q;
-    try {
-      var r = await fetch('https://www.youtube.com/oembed?url=' + encodeURIComponent(q) + '&format=json');
-      if(r.ok) {
-        var data = await r.json();
-        queryDescription = data.title + (data.author_name ? ' (uploaded by ' + data.author_name + ')' : '');
-      }
-    } catch(e) {}
-  }
-
-  var system = 'You provide structured details for worship/Christian songs. Output ONLY valid JSON, no markdown or preamble. Schema: {"title":"<clean title>","artist":"<artist/band>","language":"English|Hindi|Tamil|Telugu|Malayalam|Kannada|Bengali|Marathi|Gujarati|Punjabi|Urdu|Spanish|French|Other","key":"<musical key if known, else empty>","lyricsEnglish":"<full lyrics with [Verse 1] [Chorus] headers — only if English>","lyricsOriginal":"<original lyrics with section headers — only if non-English>","lyricsTransliteration":"<phonetic English transliteration matching lyricsOriginal line-by-line — only if non-English>"}. Use empty strings for unused fields. If you genuinely do not know the song, return {"error":"reason"}.';
-  var userPrompt = 'Song: ' + queryDescription;
-  if(artistHint) userPrompt += '\nArtist hint: ' + artistHint;
-  if(langHint) userPrompt += '\nLanguage: ' + langHint;
-
-  try {
-    var result = await callAI(system, userPrompt, 4000);
-    var data = parseAIJson(result);
-    if(data.error) throw new Error(data.error);
-
-    if(data.title) document.getElementById('songTitle').value = data.title;
-    if(data.artist) document.getElementById('songArtist').value = data.artist;
-    if(data.language) document.getElementById('songLanguage').value = data.language;
-    if(data.key) document.getElementById('songKey').value = data.key;
-    if(youtubeUrl) document.getElementById('songYoutube').value = youtubeUrl;
-    toggleTransliterationFields();
-    if(data.language === 'English') {
-      if(data.lyricsEnglish) document.getElementById('songLyricsEnglish').value = data.lyricsEnglish;
-    } else {
-      if(data.lyricsOriginal) document.getElementById('songLyricsOriginal').value = data.lyricsOriginal;
-      if(data.lyricsTransliteration) document.getElementById('songLyricsTransliteration').value = data.lyricsTransliteration;
-    }
-    closeAutofillModal();
-    showToast('Form auto-filled — verify before saving! ✨', 'success');
-  } catch(err) {
-    showToast('Auto-fill failed: ' + err.message, 'error');
-  }
-  btn.disabled = false; btn.innerHTML = '✨ Generate';
-}
-
-// ════════════════════════════════════════════════
-//  SEARCH & SEMANTIC
-// ════════════════════════════════════════════════
-function toggleAISearch() {
-  aiSearchOn = !aiSearchOn;
-  document.getElementById('aiToggle').classList.toggle('on', aiSearchOn);
-  document.getElementById('searchInput').placeholder = aiSearchOn
-    ? 'Describe what you\'re looking for, then press Enter…'
-    : 'Search by title, artist, lyrics, language, or serial #…';
-  if(!document.getElementById('searchInput').value) renderSongs();
-  else if(!aiSearchOn) searchSongs();
-}
-
 function onSearchInput() {
-  if(!aiSearchOn) searchSongs();
-}
-function onSearchKey(e) {
-  if(e.key === 'Enter' && aiSearchOn) {
-    e.preventDefault();
-    doSemanticSearch();
-  }
+  searchSongs();
 }
 
 function onQuickFind(e) {
@@ -975,37 +666,6 @@ function onQuickFind(e) {
     document.getElementById('quickFind').value = '';
     searchSongs();
     document.getElementById('searchInput').focus();
-  }
-}
-
-async function doSemanticSearch() {
-  var q = document.getElementById('searchInput').value.trim();
-  if(!q) { renderSongs(); return; }
-  if(songs.length === 0) { showToast('No songs in library yet', 'error'); return; }
-
-  document.getElementById('songsContainer').innerHTML =
-    '<div class="loading-state"><div class="spinner"></div><p style="color:var(--gold-lt);font-size:13px">✨ AI is searching…</p></div>';
-
-  try {
-    var summary = songs.map(function(s){
-      return {
-        id: s.id, title: s.title, artist: s.artist || '', language: s.language || '',
-        preview: (s.lyricsEnglish || s.lyricsTransliteration || s.lyricsOriginal || '').slice(0, 250).replace(/\s+/g,' ').trim()
-      };
-    });
-    var system = 'You search a song library for songs matching the user\'s INTENT (theme, mood, message), not just keywords. Return ONLY valid JSON: an array of song IDs ordered by relevance, max 12. Use only IDs from the provided list. No preamble, no markdown.';
-    var userPrompt = 'User query: "' + q + '"\n\nSongs (JSON):\n' + JSON.stringify(summary);
-    var result = await callAI(system, userPrompt, 1000);
-    var ids = parseAIJson(result);
-    var matched = ids.map(function(id){ return songs.find(function(s){ return s.id === id; }); }).filter(Boolean);
-    if(matched.length === 0) {
-      document.getElementById('songsContainer').innerHTML = '<div class="empty-state"><div class="empty-icon">✨</div><h3>No matches found</h3><p>Try rephrasing your query.</p></div>';
-      return;
-    }
-    renderSongs(matched);
-  } catch(err) {
-    showToast('AI search failed: ' + err.message, 'error');
-    renderSongs();
   }
 }
 
@@ -1159,18 +819,12 @@ function updateLanguages() {
 function filterLanguage(lang) {
   currentLanguage = lang;
   updateLanguages();
-  if(aiSearchOn) {
-    if(document.getElementById('searchInput').value.trim()) doSemanticSearch();
-    else renderSongs();
-  } else {
-    searchSongs();
-  }
+  searchSongs();
 }
 
 function resetFilters() {
   currentLanguage = 'all';
   document.getElementById('searchInput').value = '';
-  if(aiSearchOn) { aiSearchOn = false; document.getElementById('aiToggle').classList.remove('on'); document.getElementById('searchInput').placeholder = 'Search by title, artist, lyrics, language, or serial #…'; }
   updateLanguages();
   renderSongs();
 }
